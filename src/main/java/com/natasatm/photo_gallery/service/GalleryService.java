@@ -1,18 +1,13 @@
 package com.natasatm.photo_gallery.service;
 
-import com.natasatm.photo_gallery.config.FolderResolver;
 import com.natasatm.photo_gallery.model.GalleryItem;
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import com.natasatm.photo_gallery.model.GalleryItem;
-
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;

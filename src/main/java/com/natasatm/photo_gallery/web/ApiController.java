@@ -1,5 +1,6 @@
 package com.natasatm.photo_gallery.web;
 
+import com.natasatm.photo_gallery.config.FolderResolver;
 import com.natasatm.photo_gallery.model.GalleryItem;
 import com.natasatm.photo_gallery.service.GalleryService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +19,10 @@ import java.util.Map;
 public class ApiController {
 
     private final GalleryService gallery;
-    public ApiController(GalleryService gallery) { this.gallery = gallery; }
+    private final FolderResolver folderResolver;
+    public ApiController(GalleryService gallery, FolderResolver folderResolver) { this.gallery = gallery;
+        this.folderResolver = folderResolver;
+    }
 
     @GetMapping("/gallery")
     public Map<String, List<GalleryItem>> gallery() {
@@ -31,6 +35,7 @@ public class ApiController {
                 "folders", gallery.getIndex().size(),
                 "total_images", gallery.getIndex().values().stream().mapToInt(List::size).sum(),
                 "gallery_folder", gallery.getRoot().toString(),
+                "gallery_folder_resolver", folderResolver.getRoot().toString(), // ← Proveri šta resolver vidi
                 "version", gallery.getVersion()
         );
     }
