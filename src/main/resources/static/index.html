@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="sr">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
     <title data-i18n="title">📸 Foto Galerija</title>
     <style>
@@ -18,14 +18,21 @@
         .topbar { display:flex; gap:10px; align-items:center; justify-content: center; padding: 10px; position: sticky; top: 0; background: var(--bg); z-index: 5; }
 
         /* Folders - responsive grid layout */
-        .folders {
-            display: grid;
-            gap: 10px;
-            padding: 10px 16px 16px;
-            background: var(--panel);
-            /* Mobile: 2 kolone */
-            grid-template-columns: repeat(2, 1fr);
-        }
+        /* Folders - responsive grid layout */
+.folders{
+  display: grid;
+  gap: 10px;
+  padding: 10px 16px 16px;
+  background: var(--panel);
+  grid-template-columns: repeat(2, 1fr);
+
+  /* NEW: sticky ispod topbar-a */
+  position: sticky;
+  top: var(--topbar-h, 0px);
+  z-index: 6;                    /* iznad grida i slika */
+  box-shadow: 0 2px 0 #00000022; /* suptilan separator dok je zalepljena */
+}
+
 
         /* Tablet landscape (širina ≥ 700px): 3-4 kolone */
         @media (min-width: 700px) {
@@ -137,8 +144,12 @@
     <div class="tip" data-i18n="tip">Prevucite listu foldera »</div>
 </div>
 
-<div class="folders" id="folders"><div class="empty" data-i18n="loadingFolders">Učitavam foldere…</div></div>
-<div class="grid" id="grid"><div class="empty" data-i18n="loadingImages">Učitavam slike…</div></div>
+<div class="folders" id="folders">
+    <div class="empty" data-i18n="loadingFolders">Učitavam foldere…</div>
+</div>
+<div class="grid" id="grid">
+    <div class="empty" data-i18n="loadingImages">Učitavam slike…</div>
+</div>
 
 <div class="lightbox" id="lightbox" aria-hidden="true">
     <button class="lb-close" id="btnClose" aria-label="Zatvori" data-i18n-aria="closeLabel">×</button>
@@ -384,6 +395,17 @@
         else if (e.key === 'Escape') closeLightbox();
       });
     })();
+
+    const elTopbar  = document.querySelector('.topbar');
+
+function setStickyOffset(){
+  const h = elTopbar ? elTopbar.offsetHeight : 0;
+  document.documentElement.style.setProperty('--topbar-h', h + 'px');
+}
+
+window.addEventListener('resize', setStickyOffset);
+setStickyOffset();
+
 </script>
 
 </body>
