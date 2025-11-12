@@ -15,13 +15,15 @@ public class PhotoGalleryApplication {
         // MORA biti pre SpringApplication.run()!
         System.setProperty("java.awt.headless", "false");
 
-        Path dataDir = AppData.resolveDefaultDataDir();
+        Path appHome = AppData.resolveDefaultDataDir();
         try {
-            Files.createDirectories(dataDir);
+            Files.createDirectories(appHome);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        System.setProperty("APP_DATA_DIR", dataDir.toString().replace("\\", "/")); // koristi se u properties
+        // više nije baza: generalni app-home
+        System.setProperty("APP_HOME", appHome.toString().replace("\\", "/"));
+
 
         SpringApplication.run(PhotoGalleryApplication.class, args);
     }
