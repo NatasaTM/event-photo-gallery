@@ -20,9 +20,10 @@ public class GalleryService {
 
     @Getter
     private final Path root;
-    // već je sortiran po imenu fajla; po potrebi sortiraj i ključeve
+
     @Getter
     private volatile Map<String, List<GalleryItem>> index = new HashMap<>();
+
     private final AtomicLong version = new AtomicLong(0);
 
     public GalleryService(Path galleryRoot) throws IOException {
@@ -42,26 +43,30 @@ public class GalleryService {
 
     // === pomoćno ===
     private Map<String, List<GalleryItem>> scan() {
+        // Ako želiš stabilan poredak ključeva: var result = new LinkedHashMap<String, List<GalleryItem>>();
         Map<String, List<GalleryItem>> result = new HashMap<>();
         if (!Files.exists(root)) return result;
 
         try (DirectoryStream<Path> dirs = Files.newDirectoryStream(root, Files::isDirectory)) {
             for (Path dir : dirs) {
-                List<GalleryItem> items = Files.list(dir)
-                        .filter(Files::isRegularFile)
-                        .filter(p -> isAllowed(p.getFileName().toString()))
-                        .map(p -> {
-                            long m = p.toFile().lastModified();
-                            String name = p.getFileName().toString();
-                            // cache-bust query param
-                            String url = "/images/" + dir.getFileName() + "/" + name + "?v=" + m;
-                            return new GalleryItem(name, url, m);
-                        })
-                        .sorted(Comparator.comparing(GalleryItem::name, (a,b) ->
-                                a.toLowerCase().compareTo(b.toLowerCase())))
-                        .collect(Collectors.toList());
-                if (!items.isEmpty()) {
-                    result.put(dir.getFileName().toString(), items);
+                try (var list = Files.list(dir)) {
+                    List<GalleryItem> items = list
+                            .filter(Files::isRegularFile)
+                            .filter(p -> isAllowed(p.getFileName().toString()))
+                            .map(p -> {
+                                long m = p.toFile().lastModified();
+                                String name = p.getFileName().toString();
+                                String rel  = dir.getFileName().toString() + "/" + name; // "A/DSC_0001.jpg"
+                                String url  = "/images/" + rel + "?v=" + m;               // cache-bust
+                                return new GalleryItem(name, url, rel, m);
+                            })
+                            .sorted(Comparator.comparing(GalleryItem::name,
+                                    (a,b) -> a.toLowerCase().compareTo(b.toLowerCase())))
+                            .toList();
+
+                    if (!items.isEmpty()) {
+                        result.put(dir.getFileName().toString(), items);
+                    }
                 }
             }
         } catch (IOException ignored) {}
@@ -73,5 +78,4 @@ public class GalleryService {
         String lower = fn.toLowerCase(Locale.ROOT);
         return ALLOWED.stream().anyMatch(lower::endsWith);
     }
-
 }

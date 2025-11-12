@@ -178,43 +178,47 @@ public class FolderResolver {
     private GalleryRoots readRemembered() {
         Path f = rememberFilePath();
         if (!Files.isRegularFile(f)) return null;
-
         try {
             Properties p = new Properties();
-            p.load(Files.newBufferedReader(f));
+            try (var r = Files.newBufferedReader(f)) { p.load(r); }
             Mode m = parseMode(p.getProperty("mode"), Mode.SINGLE);
 
             if (m == Mode.SINGLE) {
                 String root = p.getProperty("eventRoot");
                 if (blank(root)) return null;
                 Path event = normalizeAndEnsure(root);
-                GalleryRoots r = new GalleryRoots(
-                        ensureDir(event.resolve("preview")),
-                        ensureDir(event.resolve("originals")),
-                        ensureWritableDir(event.resolve("orders")),
-                        Mode.SINGLE
-                );
-                validate(r);
-                return r;
+                Path preview   = ensureDir(event.resolve("preview"));
+                Path originals = ensureDir(event.resolve("originals"));
+                Path orders    = ensureWritableDir(event.resolve("orders"));
+
+                // ✅ hard-validacija: sve mora postojati + orders writable
+                if (!Files.isDirectory(preview) || !Files.isDirectory(originals) || !canWrite(orders)) {
+                    log.warn("Remembered SINGLE config ne važi: {}", event);
+                    return null;
+                }
+                return new GalleryRoots(preview, originals, orders, Mode.SINGLE);
             } else {
                 String pr = p.getProperty("previewRoot");
                 String or = p.getProperty("originalRoot");
                 String od = p.getProperty("ordersRoot");
                 if (blank(pr) || blank(or) || blank(od)) return null;
-                GalleryRoots r = new GalleryRoots(
-                        normalizeAndEnsure(pr),
-                        normalizeAndEnsure(or),
-                        ensureWritableDir(Paths.get(od)),
-                        Mode.MULTI
-                );
-                validate(r);
-                return r;
+
+                Path preview   = normalizeAndEnsure(pr);
+                Path originals = normalizeAndEnsure(or);
+                Path orders    = ensureWritableDir(Paths.get(od));
+
+                if (!Files.isDirectory(preview) || !Files.isDirectory(originals) || !canWrite(orders)) {
+                    log.warn("Remembered MULTI config ne važi");
+                    return null;
+                }
+                return new GalleryRoots(preview, originals, orders, Mode.MULTI);
             }
         } catch (Exception e) {
             log.warn("Greška pri čitanju {}: {}", f, e.toString());
-            return null;
+            return null; // forsira novi izbor
         }
     }
+
 
     private void maybeRemember(GalleryRoots r) {
         if (!rememberChoice || r == null) return;
@@ -223,22 +227,34 @@ public class FolderResolver {
             Properties p = new Properties();
             p.setProperty("mode", r.mode().name());
             if (r.mode() == Mode.SINGLE) {
-                // eventRoot = parent of preview/originals/orders (pretpostavka)
-                Path eventRoot = r.previewRoot().getParent(); // preview/
-                if (eventRoot != null) eventRoot = eventRoot.getParent(); // …/eventRoot
-                if (eventRoot == null) eventRoot = r.previewRoot(); // fallback
+                // eventRoot = parent(previewRoot)
+                Path eventRoot = r.previewRoot().getParent();
+                if (eventRoot == null) eventRoot = r.previewRoot();
                 p.setProperty("eventRoot", eventRoot.toString());
             } else {
                 p.setProperty("previewRoot",  r.previewRoot().toString());
                 p.setProperty("originalRoot", r.originalRoot().toString());
                 p.setProperty("ordersRoot",   r.ordersRoot().toString());
             }
-            Files.writeString(f, toPropertiesString(p), CREATE, TRUNCATE_EXISTING);
+            try (var w = Files.newBufferedWriter(f)) {
+                p.store(w, null); // ispravno escape-uje backslash za Windows putanje
+            }
             log.info("Zapamćena galerijska konfiguracija u {}", f);
         } catch (Exception e) {
             log.warn("Ne mogu da zapamtim konfiguraciju: {}", e.toString());
         }
     }
+
+    public void clearRemembered() {
+        try {
+            Files.deleteIfExists(rememberFilePath());
+            log.info("Obrisan zapamćeni .gallery-config");
+        } catch (IOException e) {
+            log.warn("Ne mogu da obrišem {}: {}", rememberFilePath(), e.toString());
+        }
+    }
+
+
 
     private String toPropertiesString(Properties p) throws IOException {
         var sb = new StringBuilder();
@@ -362,4 +378,14 @@ public class FolderResolver {
             return true;
         } catch (IOException e) { return false; }
     }
+
+    @Bean
+    public GalleryRoots galleryRoots() {
+        // Napravi i keširanu instancu preko postojećeg mehanizma
+        return getRoots();
+    }
+
+
+
+
 }
