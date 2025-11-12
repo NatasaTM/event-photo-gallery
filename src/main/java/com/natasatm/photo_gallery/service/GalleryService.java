@@ -74,8 +74,4 @@ public class GalleryService {
         return ALLOWED.stream().anyMatch(lower::endsWith);
     }
 
-
-
-
-
 }
