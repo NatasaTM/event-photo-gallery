@@ -18,6 +18,10 @@ import java.time.LocalDateTime;
         name = "event_price_list",
         uniqueConstraints = {
                 @UniqueConstraint(name="uk_event_price_list", columnNames={"event_id","price_list_id"})
+        },
+        indexes = {
+                @Index(name="ix_eventpl_event", columnList="event_id"),
+                @Index(name="ix_eventpl_pricelist", columnList="price_list_id")
         }
 )
 public class EventPriceList {

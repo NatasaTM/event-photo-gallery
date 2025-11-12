@@ -12,7 +12,10 @@ import lombok.*;
 @Setter
 @Builder
 @Entity
-@Table(name = "price_list")
+@Table(name = "price_list",
+        indexes = {
+                @Index(name="ix_price_list_currency", columnList="currency_id")
+        })
 public class PriceList {
 
     @Id
