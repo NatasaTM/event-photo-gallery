@@ -64,7 +64,7 @@
             font-size: 0.85rem;
             margin-bottom: 0.25rem;
         }
-        input, select {
+        input:not([type="checkbox"]), select {
             width: 100%;
             padding: 0.4rem 0.6rem;
             border-radius: 0.5rem;
@@ -133,6 +133,18 @@
         .btn-danger:hover {
             background: #b91c1c;
         }
+
+        .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.checkbox-row input[type="checkbox"] {
+    width: auto;
+}
+
     </style>
 </head>
 <body>
@@ -140,7 +152,7 @@
     <h1>Management</h1>
     <div class="nav-link active" data-section="events">Eventi</div>
     <div class="nav-link" data-section="products">Proizvodi</div>
-    <div class="nav-link" data-section="pricing">Cenovnici (uskoro)</div>
+    <div class="nav-link" data-section="pricing">Cenovnici</div>
 </div>
 
 <div class="content">
@@ -201,6 +213,45 @@
                 </tbody>
             </table>
         </div>
+
+        <div class="card">
+            <h2>Cenovnici po eventu</h2>
+
+            <label for="evpl-event">Event</label>
+            <select id="evpl-event">
+                <!-- JS: lista svih eventa -->
+            </select>
+
+            <label for="evpl-pricelist" style="margin-top:0.75rem;">Cenovnik</label>
+            <select id="evpl-pricelist">
+                <!-- JS: filtrirano po valuti eventa -->
+            </select>
+
+            <label class="checkbox-row" style="margin-top:0.5rem;">
+                <input type="checkbox" id="evpl-default">
+                Podrazumevan za valutu cenovnika
+            </label>
+
+            <button type="button" id="btn-evpl-link" style="margin-top:0.75rem;">
+                Poveži cenovnik sa eventom
+            </button>
+
+            <table id="table-evpl" style="margin-top:1rem;">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Cenovnik</th>
+                    <th>Valuta</th>
+                    <th>Default</th>
+                    <th>Akcije</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- JS popunjava -->
+                </tbody>
+            </table>
+        </div>
+
     </section>
 
     <!-- Placeholder sekcije -->
@@ -268,9 +319,96 @@
     <section id="section-pricing" class="section">
         <div class="card">
             <h2>Cenovnici</h2>
-            <p>Ovde ćemo raditi PriceList i cene po proizvodima.</p>
+
+            <form id="form-price-list">
+                <label for="pl-name">Naziv cenovnika</label>
+                <input id="pl-name" name="name" required>
+
+                <label for="pl-currency">Valuta</label>
+                <select id="pl-currency" name="currencyCode" required>
+                    <option value="RSD">RSD</option>
+                    <option value="EUR">EUR</option>
+                </select>
+
+                <label class="checkbox-row">
+                    <input type="checkbox" id="pl-is-default">
+                    Podrazumevani cenovnik (za ovu valutu)
+                </label>
+
+                <button type="submit" id="btn-pl-submit">Kreiraj cenovnik</button>
+                <button type="button" id="btn-pl-cancel" style="display:none; margin-left:0.5rem;">
+                    Otkaži izmenu
+                </button>
+            </form>
         </div>
+
+        <div class="card">
+            <h2>Lista cenovnika</h2>
+            <table id="table-price-lists">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Naziv</th>
+                    <th>Valuta</th>
+                    <th>Default</th>
+                    <th>Akcije</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- JS popunjava -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>Cene u cenovniku</h2>
+
+            <label for="price-pl-select">Cenovnik</label>
+            <select id="price-pl-select">
+                <!-- JS: popuni iz currentPriceLists -->
+            </select>
+
+            <form id="form-price" style="margin-top: 0.75rem;">
+                <label for="price-product">Proizvod</label>
+                <select id="price-product" required>
+                    <!-- JS: popuni iz products -->
+                </select>
+
+                <label for="price-amount">Cena</label>
+                <input id="price-amount" type="number" step="0.01" min="0" required>
+
+                <label for="price-tax">Porez (%)</label>
+                <input id="price-tax" type="number" step="1" min="0" value="0">
+
+                <label for="price-minqty">Minimalna količina</label>
+                <input id="price-minqty" type="number" step="1" min="1" value="1">
+
+                <button type="submit" id="btn-price-submit">Dodaj cenu</button>
+                <button type="button" id="btn-price-cancel"
+                        style="display:none; margin-left:0.5rem;">
+                    Otkaži izmenu
+                </button>
+            </form>
+
+            <table id="table-prices" style="margin-top: 1rem;">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Proizvod</th>
+                    <th>Cena</th>
+                    <th>Porez %</th>
+                    <th>Min. qty</th>
+                    <th>Akcije</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- JS popunjava -->
+                </tbody>
+            </table>
+        </div>
+
     </section>
+
 </div>
 
 <script src="/js/management.js"></script>
