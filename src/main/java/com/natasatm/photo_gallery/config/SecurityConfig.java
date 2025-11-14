@@ -49,6 +49,8 @@ public class SecurityConfig {
                                 "/api/events/**",
                                 "/api/orders/**"
                         ).hasAnyRole("SELLER", "ADMIN")
+                        .requestMatchers("/api/auth/me").authenticated()
+
 
                         // sve ostalo traži login
                         .anyRequest().authenticated()

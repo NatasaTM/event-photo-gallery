@@ -5,6 +5,8 @@ let currentProductTypes = [];
 let currentProducts = [];
 let editingProductId = null;
 
+let currentUser = null;
+
 
 document.addEventListener("DOMContentLoaded", () => {
   setupTabs();
@@ -15,7 +17,52 @@ document.addEventListener("DOMContentLoaded", () => {
     setupProductForm();
     loadProductTypes();
     loadProducts();
+
+    loadMe();
+    setupLogout();
+
 });
+
+async function loadMe() {
+  try {
+    const res = await fetch("/api/auth/me");
+    if (!res.ok) {
+      console.error("Failed to load user data");
+      return;
+    }
+    const data = await res.json();
+    currentUser = data; // 👈 ovde pamtimo
+    document.querySelector(".user-info").textContent = data.name;
+  } catch (e) {
+    console.error("Could not load user info", e);
+  }
+}
+
+function setupLogout() {
+  const btn = document.getElementById("btn-logout");
+  if (!btn) return;
+
+  btn.addEventListener("click", async () => {
+    try {
+      const res = await fetch("/logout", {
+        method: "POST"
+      });
+
+      // ako je Spring uradio redirect
+      if (res.redirected) {
+        window.location.href = res.url;
+      } else {
+        // fallback – vrati na login
+        window.location.href = "/login.html";
+      }
+    } catch (e) {
+      console.error("Logout error", e);
+      window.location.href = "/login.html";
+    }
+  });
+}
+
+
 
 function setupTabs() {
   const links = document.querySelectorAll(".nav-link");
