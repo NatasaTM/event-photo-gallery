@@ -139,7 +139,7 @@
 <div class="sidebar">
     <h1>Management</h1>
     <div class="nav-link active" data-section="events">Eventi</div>
-    <div class="nav-link" data-section="products">Proizvodi (uskoro)</div>
+    <div class="nav-link" data-section="products">Proizvodi</div>
     <div class="nav-link" data-section="pricing">Cenovnici (uskoro)</div>
 </div>
 
@@ -205,10 +205,64 @@
     <!-- Placeholder sekcije -->
     <section id="section-products" class="section">
         <div class="card">
-            <h2>Proizvodi</h2>
-            <p>Ova sekcija će doći posle eventa.</p>
+            <h2>Product types</h2>
+            <form id="form-product-type">
+                <label for="pt-name">Naziv tipa</label>
+                <input id="pt-name" name="name" required>
+                <button type="submit">Dodaj tip</button>
+            </form>
+
+            <table id="table-product-types" style="margin-top: 1rem;">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Naziv</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- JS popunjava -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>Products</h2>
+            <form id="form-product">
+                <label for="p-name">Naziv proizvoda</label>
+                <input id="p-name" name="name" required>
+
+                <label for="p-desc">Opis (opciono)</label>
+                <input id="p-desc" name="description">
+
+                <label for="p-type">Tip</label>
+                <select id="p-type" name="productTypeId" required>
+                    <!-- JS popunjava na osnovu product types -->
+                </select>
+
+                <button type="submit" id="btn-product-submit">Kreiraj proizvod</button>
+                <button type="button" id="btn-product-cancel"
+                        style="display:none; margin-left:0.5rem;">
+                    Otkaži izmenu
+                </button>
+            </form>
+
+            <table id="table-products" style="margin-top: 1rem;">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Naziv</th>
+                    <th>Tip</th>
+                    <th>Opis</th>
+                    <th>Akcije</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- JS popunjava -->
+                </tbody>
+            </table>
         </div>
     </section>
+
 
     <section id="section-pricing" class="section">
         <div class="card">
