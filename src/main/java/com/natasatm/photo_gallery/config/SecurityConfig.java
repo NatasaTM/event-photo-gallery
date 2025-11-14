@@ -40,9 +40,15 @@ public class SecurityConfig {
                         .requestMatchers("/api/reports/**").hasRole("ADMIN")
 
                         // sve admin/seller funkcije (cenovnici, proizvodi, porudžbine)
-                        .requestMatchers("/api/admin/**", "/api/products/**", "/api/prices/**",
-                                "/api/events/**")
-                        .hasAnyRole("ADMIN", "SELLER")
+                        // SELLER + ADMIN: konfiguracija proizvoda i cena
+                        .requestMatchers(
+                                "/api/products/**",
+                                "/api/product-types/**",
+                                "/api/price-lists/**",
+                                "/api/prices/**",
+                                "/api/events/**",
+                                "/api/orders/**"
+                        ).hasAnyRole("SELLER", "ADMIN")
 
                         // sve ostalo traži login
                         .anyRequest().authenticated()
@@ -50,7 +56,7 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/login.html")                   // 👈 gde je login stranica (GET)
                         .loginProcessingUrl("/login")          // 👈 POST ovde ide iz forme
-                        .defaultSuccessUrl("/", true) // 👈 posle logina, gde da ode (za sada na index)
+                        .defaultSuccessUrl("/management.html", true) // 👈 posle logina, gde da ode (za sada na index)
                         .permitAll()
                 )
                 .logout(logout -> logout

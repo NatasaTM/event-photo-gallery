@@ -37,4 +37,7 @@ public class Event {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "secondary_currency_id")
     private Currency secondaryCurrency;
+
+    @Column(nullable = false)
+    private boolean active = true;
 }

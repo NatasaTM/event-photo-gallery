@@ -1,9 +1,12 @@
 package com.natasatm.photo_gallery.data;
 
+import com.natasatm.photo_gallery.model.Currency;
 import com.natasatm.photo_gallery.model.Role;
 import com.natasatm.photo_gallery.model.User;
+import com.natasatm.photo_gallery.repository.CurrencyRepository;
 import com.natasatm.photo_gallery.repository.RoleRepository;
 import com.natasatm.photo_gallery.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,19 +19,15 @@ import java.util.Set;
  * @author Natasa Todorov Markovic
  */
 @Configuration
+@RequiredArgsConstructor
 public class DataInitializer {
 
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CurrencyRepository currencyRepository;
 
-    public DataInitializer(RoleRepository roleRepository,
-                           UserRepository userRepository,
-                           PasswordEncoder passwordEncoder) {
-        this.roleRepository = roleRepository;
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+
 
     @Bean
     public CommandLineRunner initData() {
@@ -83,6 +82,25 @@ public class DataInitializer {
                 userRepository.save(seller2);
                 System.out.println("✔ Created default seller2");
             }
+
+            // --- CURRENCIES ---
+            Currency rsd = currencyRepository.findByCode("RSD")
+                    .orElseGet(() -> currencyRepository.save(
+                            Currency.builder()
+                                    .code("RSD")
+                                    .name("Serbian dinar")
+                                    .symbol("din")
+                                    .build()
+                    ));
+
+            Currency eur = currencyRepository.findByCode("EUR")
+                    .orElseGet(() -> currencyRepository.save(
+                            Currency.builder()
+                                    .code("EUR")
+                                    .name("Euro")
+                                    .symbol("€")
+                                    .build()
+                    ));
         };
     }
 }
